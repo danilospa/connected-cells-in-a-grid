@@ -7,32 +7,29 @@ def not_in_region?(current_region_elements, i, j)
   current_region_elements.detect { |e| e[0] == i and e[1] == j }.nil?
 end
 
-def connected_cells_count(matrix, i, j, current_region_elements)
+def connected_cells_count(matrix, i, j, current_region_elements = [])
+  return 0 if j == matrix[0].size or i == -1
+  return 0 if i == matrix.size or j == -1
+  return 0 if matrix[i][j].zero?
+  return 0 unless not_in_region?(current_region_elements, i, j)
+
   count = 1
-  if (j + 1 < matrix[0].size and matrix[i][j + 1] == 1 and not_in_region?(current_region_elements, i, j + 1))
-    current_region_elements << [i, j + 1]
-    count += connected_cells_count(matrix, i, j + 1, current_region_elements)
-  end
-
-  if (i + 1 < matrix.size and matrix[i + 1][j] == 1 and not_in_region?(current_region_elements, i + 1, j))
-    current_region_elements << [i + 1, j]
-    count += connected_cells_count(matrix, i + 1, j, current_region_elements)
-  end
-
-  if (i + 1 < matrix.size and j + 1 < matrix[0].size and matrix[i + 1][j + 1] == 1 and not_in_region?(current_region_elements, i + 1, j + 1))
-    current_region_elements << [i + 1, j + 1]
-    count += connected_cells_count(matrix, i + 1, j + 1, current_region_elements)
-  end
-
-  count
+  current_region_elements << [i, j]
+  count += connected_cells_count(matrix, i, j + 1, current_region_elements)
+  count += connected_cells_count(matrix, i + 1, j + 1, current_region_elements)
+  count += connected_cells_count(matrix, i + 1, j, current_region_elements)
+  count += connected_cells_count(matrix, i + 1, j - 1, current_region_elements)
+  count += connected_cells_count(matrix, i, j - 1, current_region_elements)
+  count += connected_cells_count(matrix, i - 1, j - 1, current_region_elements)
+  count += connected_cells_count(matrix, i - 1, j, current_region_elements)
+  count += connected_cells_count(matrix, i - 1, j + 1, current_region_elements)
 end
 
 def connected_cell(matrix)
   results = []
   matrix.size.times.each do |i|
-    matrix.size.times.each do |j|
-      next if matrix[i][j].zero?
-      results << connected_cells_count(matrix, i, j, [[i, j]])
+    matrix[i].size.times.each do |j|
+      results << connected_cells_count(matrix, i, j)
     end
   end
 
