@@ -3,37 +3,30 @@
 require 'json'
 require 'stringio'
 
-def redefine_next(next_element, scanned_elements)
-  i, j = next_element
+def next_element(i, j, scanned_elements)
   n = scanned_elements.size
   m = scanned_elements[0].size
 
   next_i = i + ((j + 1) / m)
   next_j = (j + 1) % m
 
-  next_element[0] = next_i
-  next_element[1] = next_j
-
-  return if next_i == n
-  return unless scanned_elements[next_i][next_j]
-  redefine_next(next_element, scanned_elements)
+  return [next_i, next_j] if next_i == n or !scanned_elements[next_i][next_j]
+  return next_element(next_i, next_j, scanned_elements)
 end
 
-def connected_cells_count(matrix, i, j, scanned_elements, next_element)
+def connected_cells_count(matrix, i, j, scanned_elements)
   return 0 if j == matrix[0].size or i == -1
   return 0 if i == matrix.size or j == -1
   return 0 if scanned_elements[i][j]
 
-  redefine_next(next_element, scanned_elements) if next_element[0] == i and next_element[1] == j
   scanned_elements[i][j] = true
-
   return 0 if matrix[i][j].zero?
 
   count = 1
   (-1..1).each do |line|
     (-1..1).each do |column|
       next if line == 0 and column == 0
-      count += connected_cells_count(matrix, i + line, j + column, scanned_elements, next_element)
+      count += connected_cells_count(matrix, i + line, j + column, scanned_elements)
     end
   end
 
@@ -46,10 +39,11 @@ def connected_cell(matrix)
   scanned_elements = n.times.map { Array.new(m) }
 
   results = []
-  next_element = [0, 0]
-  while next_element[0] != n do
-    i, j = next_element
-    results << connected_cells_count(matrix, i, j, scanned_elements, next_element)
+  i = 0
+  j = 0
+  while i != n do
+    results << connected_cells_count(matrix, i, j, scanned_elements)
+    i, j = next_element(i, j, scanned_elements)
   end
 
   results.max
