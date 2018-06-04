@@ -55,6 +55,7 @@ def connected_cell(matrix)
   results.max
 end
 
+# Code below was supplied by HackerRank
 fptr = File.open(ENV['OUTPUT_PATH'], 'w')
 
 n = gets.to_i
